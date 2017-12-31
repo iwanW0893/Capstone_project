@@ -5,12 +5,6 @@ Created on Mon Sep 11 13:46:15 2017
 @author: Iwan.Williams
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 01 16:07:24 2017
-
-@author: Iwan.Williams
-"""
 import itertools
 import glob
 import shutil
@@ -22,21 +16,21 @@ import numpy as np
 
 #excel spreadsheets collected from individual folders in our internal drive 
 #into a single folder.
-for folderName, subfolders, filenames in \
-os.walk(r'\\rdtaxserver\company\R&D\Reports'):
+for folderName, subfolders, filenames in os.walk(
+    r'\\rdtaxserver\company\R&D\Reports'):
 
-    for file in filenames:
-            if 'Costs Summary' or 'Cost Summary' in file:
-                    try: shutil.copy(os.path.join(folderName, file), 
+    for summary in filenames:
+        if 'Costs Summary' or 'Cost Summary' in summary:
+                    try: shutil.copy(os.path.join(folderName, summary), 
                     r'C:\Users\iwan.williams\Documents\Working Python Files\
                     Cost summaries')
                     except: 
-                            print(folderName, file)
+                        print(folderName, summary)
 
 
 def get_data(sheet):
-        for row in sheet.values:
-            row_it = iter(row)
+    for row in sheet.values:
+        row_it = iter(row)
             for cell in row_it:
                 if cell is not None:
                     yield itertools.chain((cell,), row_it)
@@ -55,11 +49,11 @@ def squeeze_nan(x):
 path =r'C:\Users\iwan.williams\Documents\Working Python Files\Cost summaries'
 #specify the path we're extracting information from
 all_files = glob.glob(path + "/*.xls?")
-#specifying that we want to obtain each file in the destination which is an 
-#excel file. 
-#All excel files are needed therefore the extension can be xlsx or xlsm because
-#the ? regex wildcard is used.
-#list of identifiers of the expenditure from the start to the end of the data.
+# specifying that we want to obtain each file in the destination which is an 
+# excel file. 
+# All excel files are needed therefore the extension can be xlsx or xlsm because
+# the ? regex wildcard is used.
+# list of identifiers of the expenditure from the start to the end of the data.
 staff_labels = ['''"Staff Costs":"Total  Staff Costs Relating to R&D"''',
 '''"Staff Costs":"Total Staff Costs Relating to R&D"''',
 '''"Staff Costs":"Total of Staff Costs Relating to R&D"''',
@@ -85,7 +79,7 @@ for file in all_files:
         #the get_data function is used to loop over the cells in the worksheet
         #to obtain the data.
         try: 
-            extracted_sheets = DataFrame(get_data(sheet))  #empty columns are 
+            extracted_sheets=DataFrame(get_data(sheet))  #empty columns are 
             #dropped using the dropna function
             extracted_sheets.dropna(axis=0, thresh=2, inplace = True)
             #we also use the squeeze nan function to get rid of any spaces in 
@@ -109,7 +103,7 @@ for file in all_files:
             #columns are necessary
             extracted_costs = extracted_costs[[1, 2, 3, 'filename', 'Worksheet']]
             extracted_cost_list.append(extracted_costs)
-        except: pass
+        except: print(folderName, summary)
 
 concatenated_costs = pd.concat(extracted_cost_list)
 #Reindexed to ensure index is set correctly and double checking to ensure 
@@ -129,7 +123,7 @@ concatenated_costs.drop("Total staff costs relating to R&D", inplace = True)
 #regex to identify client ID within file destinations. This looks for three or 
 #four digits, avoids the 2013-2017 periods.
 cif_regex= r'(?<!\d)((?!201[3-7])\d{4}|\d{3})(?!\d)'
-frame['Cifs'] = frame['Filename'].str.findall(cif_regex)
+frame['Cifs']=frame['Filename'].str.findall(cif_regex)
 #the IDs found then need to be exploded into seperate rows with the 
 #corresponding data. 
 #I have found a solution at 
